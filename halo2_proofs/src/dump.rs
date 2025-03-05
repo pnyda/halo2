@@ -41,15 +41,16 @@ pub struct AssignmentDumper<F: Field> {
 
 impl<F: Field> AssignmentDumper<F> {
     pub fn new(k: u32, meta: &ConstraintSystem<F>) -> Self {
-        let n = 1 << k;
+        let usable_rows = (1 << k) - meta.blinding_factors() - 1;
+
         AssignmentDumper {
             k,
-            instance: vec![vec![Value::unknown(); n]; meta.num_instance_columns],
-            fixed: vec![vec![None; n]; meta.num_fixed_columns],
-            advice: vec![vec![None; n]; meta.num_advice_columns],
-            selectors: vec![vec![false; n]; meta.num_selectors],
+            instance: vec![vec![Value::unknown(); usable_rows]; meta.num_instance_columns],
+            fixed: vec![vec![None; usable_rows]; meta.num_fixed_columns],
+            advice: vec![vec![None; usable_rows]; meta.num_advice_columns],
+            selectors: vec![vec![false; usable_rows]; meta.num_selectors],
             copy_constraints: Vec::new(),
-            usable_rows: 0..(n - meta.blinding_factors() - 1), // Why -1?
+            usable_rows: 0..usable_rows,
         }
     }
 }
